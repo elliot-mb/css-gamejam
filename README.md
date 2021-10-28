@@ -1,2 +1,3 @@
-# css-gamejam
-css bristol gamejam october 2021
+# University of Bristol CSS Gamejam 2021
+- 24 hr team Jam
+- Javascript project 
