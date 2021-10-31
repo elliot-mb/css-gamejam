@@ -19,3 +19,7 @@ canvas{
     image-rendering: pixelated;                 /* Awesome future-browsers       */
     -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
 }
+
+.hide{
+    display: none;
+}

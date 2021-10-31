@@ -7,6 +7,7 @@ export default class Healthbar{
         this.pos = _pos;
         this.colour = _colour;
         this.camera = _camera;
+        this.dispHealth = 1;
     }
 
     update(dt, _current){
@@ -38,8 +39,12 @@ export default class Healthbar{
         // });
 
         //scaling for health so the bottom of the health bar is thicker
-        const CONSTS = [0.07253815, 1.07821146531];
-        const dispHealth = CONSTS[1] * ((Math.pow(1.3, this.current)/Math.pow(1.3, this.max)) - CONSTS[0]); //- 1/Math.pow(1.3, this.max); 
+        const A = 1.1;
+        const B = this.max;
+        const D = (1 / Math.pow(A, B));
+        const C = 1 / (1 - D);
+        const t = C * ((Math.pow(A, this.current)/Math.pow(A, B)) - D);
+        this.dispHealth += (t - this.dispHealth)/10; //- 1/Math.pow(1.3, this.max); 
 
         const w2 = this.dims.w/2;
         const h2 = this.dims.h/2;
@@ -48,8 +53,10 @@ export default class Healthbar{
         ctx.fillRect(this.pos.x - w2, this.pos.y - h2, w2 * 2, h2 * 2);
 
         ctx.fillStyle = this.colour.primary;
-        ctx.fillRect(this.pos.x - w2, this.pos.y - h2, 
-            w2 * 2 * dispHealth, h2 * 2);
+        ctx.fillRect(
+            this.pos.x - w2, this.pos.y - h2, 
+            w2 * 2 * this.dispHealth, h2 * 2
+            );
 
     }
 }

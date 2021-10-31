@@ -8,14 +8,14 @@ export default class EnemyHandler{
         this.player = _player;
     }
 
-    initialise(){
+    initialise(_camera){
         for(let i = 0; i < this.wave; i++){
             this.enemies.push(
             new Enemy({
                 nametag: "enemy",
-                pos: {x: 500, y: 400},
+                pos: {x: Math.random() * 5000, y: 400},
                 vel: {i: -2, j: 0},
-                drag: {i: 0, j: 0.02},
+                drag: {i: 0.2, j: 0.02},
                 visible: true,
                 grav: true,
                 simulated: true,
@@ -23,16 +23,22 @@ export default class EnemyHandler{
                 colour: `red`,
                 collides: false,
                 jumpable: false,
-                camera: this
+                camera: _camera
             }, this.player, 0.04, 100)
             );
         }
     }
 
-    update(dt){
+    update(dt, timestamp){
         this.enemies.forEach(enemy => {
-            enemy.move(dt);
+            enemy.move(dt, timestamp);
         });
+    }
+
+    draw(ctx){
+        this.enemies.forEach(enemy =>{
+            enemy.hurtbox.draw(ctx);
+        })
     }
 
 

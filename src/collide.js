@@ -2,8 +2,7 @@
 export default class Collide{
 
     //object of interest, object checked against
-    constructor(_subject, _object, _symmetric){ 
-        this.symmetric = _symmetric;
+    constructor(_subject, _object){ 
 
         this.subject = _subject;
         this.vertexS = {x: 0, y: 0};
@@ -49,62 +48,63 @@ export default class Collide{
                 this.subject.vel.j = 0;
             }
         }
+ 
     }
 
-    symmetricResolve(dx, dy, n){
+    // symmetricResolve(dx, dy, n){
 
-        switch(n){
-            case 0:
-                if(dy * dy > dx * dx){
-                    this.subject.pos.x -= dx/2;
-                    this.object.pos.x += dx/2;
-                }else{
-                    this.subject.pos.y -= dy/2;
-                    this.object.pos.y += dy/2;
-                }
-                break;
-            case 1: 
-                if(dy * dy > dx * dx){
-                    this.subject.pos.x += dx/2;
-                    this.object.pos.x -= dx/2;
-                }else{
-                    this.subject.pos.y -= dy/2;
-                    this.object.pos.y += dy/2;
-                }
-                break;
-            case 2:
-                if(dy * dy > dx * dx){
-                    this.subject.pos.x += dx/2;
-                    this.object.pos.x -= dx/2;
-                }else{
-                    this.subject.pos.y += dy/2;
-                    this.object.pos.y -= dy/2;
-                }
-                break;
-            case 3:
-                if(dy * dy > dx * dx){
-                    this.subject.pos.x -= dx/2;
-                    this.object.pos.x += dx/2;
-                }else{
-                    this.subject.pos.y += dx/2;
-                    this.object.pos.y -= dx/2;
-                }
-                break;
-            default:
-                break;
-        }
+    //     switch(n){
+    //         case 0:
+    //             if(dy * dy > dx * dx){
+    //                 this.subject.pos.x -= dx/2;
+    //                 this.object.pos.x += dx/2;
+    //             }else{
+    //                 this.subject.pos.y -= dy/2;
+    //                 this.object.pos.y += dy/2;
+    //             }
+    //             break;
+    //         case 1: 
+    //             if(dy * dy > dx * dx){
+    //                 this.subject.pos.x += dx/2;
+    //                 this.object.pos.x -= dx/2;
+    //             }else{
+    //                 this.subject.pos.y -= dy/2;
+    //                 this.object.pos.y += dy/2;
+    //             }
+    //             break;
+    //         case 2:
+    //             if(dy * dy > dx * dx){
+    //                 this.subject.pos.x += dx/2;
+    //                 this.object.pos.x -= dx/2;
+    //             }else{
+    //                 this.subject.pos.y += dy/2;
+    //                 this.object.pos.y -= dy/2;
+    //             }
+    //             break;
+    //         case 3:
+    //             if(dy * dy > dx * dx){
+    //                 this.subject.pos.x -= dx/2;
+    //                 this.object.pos.x += dx/2;
+    //             }else{
+    //                 this.subject.pos.y += dx/2;
+    //                 this.object.pos.y -= dx/2;
+    //             }
+    //             break;
+    //         default:
+    //             break;
+    //     }
 
-        // if(Math.abs(dx * this.subject.vel.j) < Math.abs(dy * this.subject.vel.i)){
-        //     this.subject.pos.x += dx/2;
-        //     this.object.pos.x -= dx/2;
-        //     //this.subject.vel.i = this.object.vel.i = 0;
-        // } else {
-        //     this.subject.pos.x -= dy/2;
-        //     this.object.pos.y += dy/2;
-        //     //this.subject.vel.j = this.subject.vel.j = 0;
-        // }
+    //     // if(Math.abs(dx * this.subject.vel.j) < Math.abs(dy * this.subject.vel.i)){
+    //     //     this.subject.pos.x += dx/2;
+    //     //     this.object.pos.x -= dx/2;
+    //     //     //this.subject.vel.i = this.object.vel.i = 0;
+    //     // } else {
+    //     //     this.subject.pos.x -= dy/2;
+    //     //     this.object.pos.y += dy/2;
+    //     //     //this.subject.vel.j = this.subject.vel.j = 0;
+    //     // }
 
-    }
+    // }
 
     update(dt){
 
@@ -126,6 +126,7 @@ export default class Collide{
 
         if(subVert.A == 1 && subVert.B == 1 && dx < 0 && dy < 0) { // bottom right
             // if(this.symmetric) { this.symmetricResolve(dx, dy, 0); }
+            flag = true;
             this.resolve(objVert, dx, dy); 
         }
         else if(subVert.A == 1 && subVert.B == -1 && dx < 0 && dy > 0) { // top right
@@ -136,6 +137,7 @@ export default class Collide{
         }
         else if(subVert.A == -1 && subVert.B == 1 && dx > 0 && dy < 0) { // bottom left
             //if(this.symmetric) { this.symmetricResolve(dx, dy, 2); }
+            flag = true;
             this.resolve(objVert, dx, dy);
         }
         else if(subVert.A == -1 && subVert.B == -1 && dx > 0 && dy > 0) { // top left
@@ -144,6 +146,7 @@ export default class Collide{
             //if(this.symmetric) { this.symmetricResolve(dx, dy, 3); }
             this.resolve(objVert, dx, dy);
         }
+
 
         if (flag && (this.subject.collides || this.object.collides)) {  //subject takes precensence and lets both objects know that its colliding
             //console.log(`added ${this.object.nametag} to ${this.subject.nametag}`);

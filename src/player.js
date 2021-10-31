@@ -1,17 +1,18 @@
 import Healthbar from "./healthbar.js";
 import Object from "./object.js";
 import Collide from "./collide.js";
+import Enemy from "./enemy.js";
 
 export default class Player extends Object{
 
     constructor(properties){
         super(properties);
 
-        this.health = 10;
+        this.health = 40;
         this.bar = new Healthbar(
             this.health, 
             {w: 740, h: 50}, 
-            {x: 400, y: 60}, 
+            {x: 960, y: 1020}, 
             {primary: `#dd8822`, secondary: `white`},
             properties.camera
         );
@@ -25,7 +26,7 @@ export default class Player extends Object{
             simulated: true,
             dims: {w: 200, h: 200},
             colour: `green`,
-            collides: false, 
+            collides: true, 
             jumpable: false,
             camera: properties.camera 
         });
@@ -44,7 +45,7 @@ export default class Player extends Object{
         //movement 
         // this.pos = {x: 0, y: 0};
         // this.vel = {i: 0, j: 0};
-        this.agility = 0.5;
+        this.agility = 0.2;
         // this.drag = {i: 0.2, j: 0.1};
 
         this.jumps = 2;
@@ -53,6 +54,8 @@ export default class Player extends Object{
         this.canJump = false;
         //debug
         this.colour = properties.colour;
+
+        this.methods = new Enemy({});
     }
 
     keystroke(code, state){ //keycode, on is 1 or 0
@@ -93,6 +96,35 @@ export default class Player extends Object{
         }
     }
 
+    worldOfHurt(object){
+        const XOFFSET = (100 * (Math.abs(object.vel.i)/(object.vel.i + 0.1)));
+
+        object.hurtbox.pos = {
+            x: Math.abs(XOFFSET) <= 120 ? object.pos.x + XOFFSET : object.pos.x,
+            y: object.pos.y - 50
+        }; 
+        object.hurtbox.collides = true;
+        object.hurtbox.visible = true;
+    }
+
+    die(){
+        this.colour = `black`;
+        this.simulated = false;
+        this.bar.dims.w += (-this.bar.dims.w)/25;
+        this.pos = {x: 1500, y: 2000};
+    }
+
+    hurt(timestamp){
+        const result = this.methods.find(this.colliding, "hurtbox-enemy");
+
+        if(result){
+            this.methods.knockback(result, this);
+            if(this.health > 0){ this.health -= 0.4; }
+        }
+
+        if(this.health < 0) { this.die(); }
+    }
+
     attack(timestamp){
 
         const BIG = Math.pow(10, 100);
@@ -100,15 +132,18 @@ export default class Player extends Object{
         //console.log(timestamp);
 
         if(this.input.sp == 1 && timestamp < this.bladeDisable){ 
-            this.hurtbox.pos = {
-                x: this.pos.x + (100 * (Math.abs(this.vel.i)/this.vel.i)),
-                y: this.pos.y - 50
-            }; 
-            this.hurtbox.collides = true;
-            this.hurtbox.visible = true;
+            // this.hurtbox.pos = {
+            //     x: this.pos.x + (100 * (Math.abs(this.vel.i)/(this.vel.i + 0.01))),
+            //     y: this.pos.y - 50
+            // }; 
+            // this.hurtbox.collides = true;
+            // this.hurtbox.visible = true;
+
+            this.worldOfHurt(this);
+
             if(!this.hitLock){
                 this.bladeDisable = timestamp + this.bladeDuration;
-                console.log(this.bladeDisable);
+                //console.log(this.bladeDisable);
                 this.hitLock = true;
             }
         }else{
@@ -126,6 +161,7 @@ export default class Player extends Object{
         if(this.canJump) { this.jumps = 2; } 
         this.jump();
         this.attack(timestamp);
+        this.hurt(timestamp);
     }
 
     // draw(ctx){  

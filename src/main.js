@@ -1,6 +1,5 @@
 import Camera from "./camera.js"; //stores all objects
-import EnemyHandler from "./enemyhandle.js";
-import EnemyHandle from "./enemyhandle.js";
+import Sprites from "./sprites.js";
 
 var canvas = document.getElementById("canvas"); //links the script to the canvas in html
 var ctx = canvas.getContext("2d"); //sets renderer context
@@ -16,6 +15,9 @@ let camera = new Camera(
     {x: 0, y: 100}
 );
 
+let sprites = new Sprites();
+sprites.debug();
+
 camera.initialisePlayerEnemies();
 camera.initialiseColliders(); //adds collide-pair objects
 
@@ -27,8 +29,8 @@ function background(){
     ctx.fillRect(0, 0, 1920, 1080);
 }
 
-function enemies(){
-    camera.enemyHandler.update(dt);
+function enemies(timestamp){
+    camera.enemyHandler.update(dt, timestamp);
 }
 
 function collide(){
@@ -55,7 +57,7 @@ function update(timestamp){ //update simulated objects
     });
     collide();
 
-    enemies();
+    enemies(timestamp);
     //player
     player.move(dt, timestamp);
     player.bar.update(dt, player.health);
@@ -67,6 +69,7 @@ function draw(){ //draw everything to the screen
         camera.cameraDraw(ctx, camera.scene[i]);
     }
     camera.scene[0].bar.draw(ctx);
+    camera.enemyHandler.draw(ctx);
 }
 
 function main(timestamp){ //main gameloop
@@ -92,7 +95,7 @@ function mainLoop(timestamp){
         main(timestamp);
     }
         
-    setTimeout(requestAnimationFrame(mainLoop), 3000);
+    requestAnimationFrame(mainLoop);
 }
 
 mainLoop();

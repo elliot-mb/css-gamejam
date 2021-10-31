@@ -16,9 +16,9 @@ export default class Camera{
         this.player = 
         new Player({
             nametag: "player",
-            pos: {x: 1, y: 0}, 
+            pos: {x: -750, y: 500}, 
             vel: {i: 0, j: 0},
-            drag: {i: 0.2, j: 0.01},
+            drag: {i: 0.1, j: 0.05},
             visible: true,
             grav: true,
             simulated: true,
@@ -45,34 +45,34 @@ export default class Camera{
                 jumpable: true,
                 camera: this
             }),
-            new Object({ //wall
-                nametag: "floor",
-                pos: {x: 0, y: 699},
-                vel: {i: 0, j: 0},
-                drag: {i: 1, j: 1}, //drag at 1 clamps the object in place
-                visible: true,
-                grav: false,
-                simulated: false,
-                dims: {w: 300, h: 100},
-                colour: `gray`,
-                collides: true,
-                jumpable: true,
-                camera: this
-            }),
-            new Object({ //wall
-                nametag: "floor",
-                pos: {x: -300, y: 700},
-                vel: {i: 0, j: 0},
-                drag: {i: 1, j: 1}, //drag at 1 clamps the object in place
-                visible: true,
-                grav: false,
-                simulated: false,
-                dims: {w: 300, h: 60},
-                colour: `gray`,
-                collides: true,
-                jumpable: true,
-                camera: this
-            }),
+            // new Object({ //wall
+            //     nametag: "floor",
+            //     pos: {x: 0, y: 699},
+            //     vel: {i: 0, j: 0},
+            //     drag: {i: 1, j: 1}, //drag at 1 clamps the object in place
+            //     visible: true,
+            //     grav: false,
+            //     simulated: false,
+            //     dims: {w: 300, h: 100},
+            //     colour: `gray`,
+            //     collides: true,
+            //     jumpable: true,
+            //     camera: this
+            // }),
+            // new Object({ //wall
+            //     nametag: "floor",
+            //     pos: {x: -300, y: 700},
+            //     vel: {i: 0, j: 0},
+            //     drag: {i: 1, j: 1}, //drag at 1 clamps the object in place
+            //     visible: true,
+            //     grav: false,
+            //     simulated: false,
+            //     dims: {w: 300, h: 60},
+            //     colour: `gray`,
+            //     collides: true,
+            //     jumpable: true,
+            //     camera: this
+            // }),
             new Object({
                 nametag: "wall",
                 pos: {x: -960, y: 0},
@@ -90,21 +90,16 @@ export default class Camera{
         ];
 
         this.collides = [];
-        this.staticObjects = 4;
+        this.staticObjects = 2;
+        this.enemies = 10;
     }
 
     initialiseColliders(){
 
-        //symmetric collider pairs for dynamic entities
+        //automatic collide object generation
         for(let i = 0; i < this.scene.length - this.staticObjects; i++){
-            for(let j = i + 1; j < this.scene.length - this.staticObjects; j++){
-                this.collides.push(new Collide(this.scene[i], this.scene[j], true));
-            }
-        }
-
-        for(let i = 0; i < this.scene.length - this.staticObjects; i++){
-            for(let j = this.scene.length - this.staticObjects; j < this.scene.length; j++){
-                this.collides.push(new Collide(this.scene[i], this.scene[j], false));
+            for(let j = i + 1; j < this.scene.length; j++){
+                this.collides.push(new Collide(this.scene[i], this.scene[j]));
             }
         }
 
@@ -120,18 +115,16 @@ export default class Camera{
     }
 
     initialisePlayerEnemies(){
-        this.enemyHandler = new EnemyHandler(100, this.player);
-        this.enemyHandler.initialise();
+        this.enemyHandler = new EnemyHandler(this.enemies, this.player);
+        this.enemyHandler.initialise(this);
 
-        this.enemyHandler.enemies.forEach(enemy =>{
+        this.enemyHandler.enemies.forEach(enemy =>{ //insert all enemies into list
             this.scene.splice(1, 0, enemy);
+            this.collides.push(new Collide(this.player.hurtbox, enemy));
+            this.collides.push(new Collide(enemy.hurtbox, this.player));
         });
 
-        for(let i = 1; i < this.scene.length - 2; i++){
-            this.collides.push(new Collide(this.player.hurtbox, this.scene[i]));
-        }
-
-        console.log(this.collides);
+        // console.log(this.collides);
     }
 
     update(dt){
