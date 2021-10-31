@@ -1,14 +1,24 @@
+import Camera from "./camera.js";
+
 export default class Object{ //physics object
 
-    constructor(_pos, _vel, _drag, _visible, _grav, _dims, _colour){
-        this.pos = _pos;
-        this.vel = _vel;
-        this.drag = _drag;
-        this.visible = _visible;
-        this.grav = _grav; //is effected by gravity
-        this.dims = _dims;
-        this.colour = _colour;
+    constructor(properties){
+        this.nametag = properties.nametag;
+        this.pos = properties.pos;
+        this.vel = properties.vel;
+        this.drag = properties.drag;
+        this.visible = properties.visible;
+        this.grav = properties.grav; //is effected by gravity
+        this.simulated = properties.simulated;
+        this.dims = properties.dims;
+        this.colour = properties.colour;
+        this.colliding = []; //comprehensive list of collisions with current object
+        this.collides = properties.collides; 
+        this.jumpable = properties.jumpable;
+        this.camera = properties.camera; 
     }
+
+    hurt(){ /* empty hurt method so it can be called on all objects */ }
 
     update(dt){
         const G = 0.1981;
@@ -30,15 +40,17 @@ export default class Object{ //physics object
         //console.log(this.pos, this.acc, dt);
     }
 
-    draw(ctx, cx, cy){ //needs to take camera x and y
-        const i = this.pos.x - cx + 960;
-        const j = this.pos.y - cy + 540; //works the difference out between
-        // camera position and object position (relative pos)
+    draw(ctx){ this.camera.cameraDraw(ctx, this); }
 
-        const w2 = this.dims.w/2;
-        const h2 = this.dims.h/2;
+    // draw(ctx, pos, offset){ //needs to take camera x and y
+    //     const i = this.pos.x - pos.x + offset.x + 960;
+    //     const j = this.pos.y - pos.y + offset.y + 540; //works the difference out between
+    //     // camera position and object position (relative pos)
 
-        ctx.fillStyle = this.colour;
-        ctx.fillRect(i - w2, j - h2, w2 * 2, h2 * 2);
-    }
+    //     const w2 = this.dims.w/2;
+    //     const h2 = this.dims.h/2;
+
+    //     ctx.fillStyle = this.colour;
+    //     if(this.visible){ ctx.fillRect(i - w2, j - h2, w2 * 2, h2 * 2); }
+    // }
 }

@@ -1,4 +1,6 @@
 import Camera from "./camera.js"; //stores all objects
+import EnemyHandler from "./enemyhandle.js";
+import EnemyHandle from "./enemyhandle.js";
 
 var canvas = document.getElementById("canvas"); //links the script to the canvas in html
 var ctx = canvas.getContext("2d"); //sets renderer context
@@ -9,9 +11,13 @@ let frame = 0; //frameID
 let start = false;
 
 let camera = new Camera(
-    {w: undefined, h: undefined},
-    {x: 0, y: 0}
+    {w: 0, h: 0},
+    {x: 0, y: 0},
+    {x: 0, y: 100}
 );
+
+camera.initialisePlayerEnemies();
+camera.initialiseColliders(); //adds collide-pair objects
 
 document.body.addEventListener("keydown", function (e) { camera.scene[0].keystroke(e.keyCode, 1); });
 document.body.addEventListener("keyup", function (e) { camera.scene[0].keystroke(e.keyCode, 0); });
@@ -21,23 +27,52 @@ function background(){
     ctx.fillRect(0, 0, 1920, 1080);
 }
 
-function update(){ //update simulated objects
+function enemies(){
+    camera.enemyHandler.update(dt);
+}
+
+function collide(){
+    camera.scene.forEach(object => {
+        object.colliding = [];
+        object.canJump = false;  
+    });
+
+    camera.scene[0].hurtbox.colliding = [];
+
+    camera.collides.forEach(collide =>{
+        collide.update(dt);
+    });
+}
+
+function update(timestamp){ //update simulated objects
+    let player = camera.scene[0];
+    //console.log(player.health);
+    
     camera.update(dt); //move camera over player
     camera.scene.forEach(object =>{ //all objects in the scene update
         object.update(dt);
+        object.hurt(timestamp);
     });
-    //player is index 0 always
-    camera.scene[0].move(dt);
+    collide();
+
+    enemies();
+    //player
+    player.move(dt, timestamp);
+    player.bar.update(dt, player.health);
+    player.hurtbox.draw(ctx);
 }
 
 function draw(){ //draw everything to the screen
-    camera.draw(ctx);
+    for(let i = camera.scene.length - 1; i >= 0; i--){
+        camera.cameraDraw(ctx, camera.scene[i]);
+    }
+    camera.scene[0].bar.draw(ctx);
 }
 
-function main(){ //main gameloop
+function main(timestamp){ //main gameloop
     background(); //draw background 
 
-    update(); 
+    update(timestamp); 
     draw(); 
 
     frame++;
@@ -54,10 +89,10 @@ function mainLoop(timestamp){
             console.log("initialised"); //dt initialised and loop running with dt 
         } 
 
-        main();
+        main(timestamp);
     }
         
-    requestAnimationFrame(mainLoop);
+    setTimeout(requestAnimationFrame(mainLoop), 3000);
 }
 
 mainLoop();
